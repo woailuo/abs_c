@@ -1,0 +1,8 @@
+*.[oa]
+*~
+*.aux
+*.cm[iox]
+*#*#
+# *.c
+out
+Exprs
