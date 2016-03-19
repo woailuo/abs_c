@@ -1,4 +1,5 @@
 open Cil
+open Uexception
 module E = Errormsg
 
 let funclist = ref (("","") :: [])
@@ -295,7 +296,7 @@ let abstract (f : file) : unit =
                            if(findMorF nstr) then
                              (
                                funclist :=  (fd.svar.vname, "(ua." ^ "(" ^deleteSemi nstr^")" ^")") :: !funclist;
-                           isRecuriveCall := false;
+                               isRecuriveCall := false;
                              )
                            else
                              ( funclist :=  (fd.svar.vname, nstr ) :: !funclist;

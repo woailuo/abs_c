@@ -1,12 +1,22 @@
 module F = Frontc
 module C = Cil
 module E = Errormsg
+open Uexception
 
+(* parsing a file. If file name is unvalid, raise error  *)
 let parseOneFile (fname: string) : C.file =
-  let cabs, cil = F.parse_with_cabs fname () in
-  Rmtmps.removeUnusedTemps cil;
-  cil
+  try
+    let cabs, cil =
+      try
+	F.parse_with_cabs fname ()
+      with _ -> raise Err_of_main
+    in
+    Rmtmps.removeUnusedTemps cil;
+    cil
+  with
+    _ -> raise Err_of_main
 
+(* main funciton  *)
 let  rec main (): unit =
   C.print_CIL_Input := true;
   C.lineLength := 100000;
@@ -14,14 +24,17 @@ let  rec main (): unit =
   E.colorFlag := true;
   Cabs2cil.doCollapseCallCast := true;
   try
-    let fname = Sys.argv.(1) in (* file name *) 
+    let  fname =  (* file name *)
+      try
+	Sys.argv.(1) (* get input file name from prompt. if no input_filename, raise error *)
+      with
+	_ -> raise Err_of_file in
     let file =  parseOneFile fname in
-       try
-	 Abs.abstract (file)
-       with
-	 _ -> print_string " Error : at the abs.ml file \n";
+    Abs.abstract (file)  (* call function abstract *)
   with
-      Invalid_argument str ->  print_string str;
-    | _ -> print_string " Error: at main.ml file \n"
+  | Err_of_file -> print_string "Error at main.ml file, please input a file name \n"
+  | Err_of_main  -> print_string " Error at main.ml file , please check the input file and input a valid file name \n"
+  | Err_of_abs line  -> Printf.printf " Error at abs.ml file, %d  \n" line
+  | _ -> print_string  "Error: there are some unknown errors \n"
 
 let _ = main ();;
