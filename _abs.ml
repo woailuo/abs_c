@@ -15,7 +15,7 @@ let rec fixLval (fname:string) (lv: lval): string =
          _ -> ""
      )
   | _ -> ""
-n
+
 and fixExpr (fname : string) (expr: exp) : string =
   match expr with
   | Lval a -> fixLval fname a
