@@ -2,11 +2,13 @@ open Cil
 open Uexception
 module E = Errormsg
 
-type funRecord = {mutable fName: string; mutable bType: string}
+let printFlag = false	     
+	     
+type funRecord =
+  {mutable fName: string; mutable bType: string; mutable funbody : fundec}
 
-let printFlag = true
-
-let funlist = ref (("", {fName=""; bType = ""} ):: [])
+let funlist =
+  ref (("", {fName=""; bType = ""; funbody = Main.funbody  } ):: [])
 
 (* record the behavioral type *)
 let recString = ref ""
@@ -36,7 +38,7 @@ and  fixGlobal (glb: global ) : unit =
      recFName := fname;
      recString := "";
      fixFunc fd;
-     funlist := ((fname, {fName = fname; bType = !recString}) :: !funlist );
+     funlist := ((fname, {fName = fname; bType = !recString; funbody = fd }) :: !funlist );
      prints "fixGlobal : GFun End \n"
   | GAsm (str, loc) -> prints "fixGlobal : GAsm \n"
   | GPragma (attri, loc) -> prints "fixGlobal : GPragma \n"
@@ -99,7 +101,7 @@ and fixStmt (stm: stmt)  =
   | Switch (exp, blk, stmlist, loc) -> prints "fixStmt Switch Start \n";
 				       fixExpr exp;
 				       fixBlock blk;
-				       fixStmts stmlist;
+				       (* fixStmts stmlist; *)
 				       prints "fixStmt Switch End \n"
   | Loop (blk, loc, stmopt, stm2opt) -> prints "fixStmt Loop Start \n";
 					fixBlock blk;
@@ -149,7 +151,8 @@ and fixLval (lv : lval)  =
 and  fixLhost (lhost : lhost) =
   match lhost with 
   | Var varinfo -> prints (" fixLhost Var Start:  " ^ varinfo.vname ^ " \n");
-		   concatChars (fixLastCharacter !recString) varinfo.vname;
+		   
+		   (* concatChars (fixLastCharacter !recString) varinfo.vname; *)
 		   prints " fixLhost Var End \n"
   | Mem exp -> prints "fixLhost Mem Start\n";
 	       fixExpr exp;
@@ -181,17 +184,37 @@ and fixExpr (expr : exp) =
 		 fixLval lval ;
 		 prints " fixExpr Lval End\n"
   | SizeOf typ -> prints "fixExpr sizeof v\n"
-  | SizeOfE exp -> prints "fixExpr sizeofe v\n"
+  | SizeOfE exp -> prints "fixExpr sizeofE Start \n";
+		   fixExpr exp;
+		   prints "fixExpr sizeofE End \n";
   | SizeOfStr strs -> prints "fixExpr sizeofstr \n"
   | AlignOf typ -> prints "fixExpr Alignof \n"
-  | AlignOfE exp -> prints "fixExpr AlignofE \n"
-  | UnOp (op, exp, typ) -> prints "fixExpr UnOp \n"
-  | BinOp (bop, exp1, exp2, typ) -> prints "fixExpr Binop v\n"
-  | Question (exp1, exp2, exp3, typ) -> prints "fixExpr Question v\n"
-  | CastE (typ, exp) -> prints "fixExpr  CastE\n"
-  | AddrOf lval -> prints "fixExpr Addrof \n"
+  | AlignOfE exp -> prints "fixExpr AlignofE Start \n";
+		    fixExpr exp;
+		    prints "fixExpr AlignofE End \n"
+  | UnOp (op, exp, typ) -> prints "fixExpr UnOp Start  \n";
+			   fixExpr exp;
+			   prints "fixExpr UnOp End \n"
+  | BinOp (bop, exp1, exp2, typ) -> prints "fixExpr Binop Start\n";
+				    fixExpr exp1;
+				    fixExpr exp2;
+				    prints "fixExpr Binop End\n"
+  | Question (exp1, exp2, exp3, typ) -> prints "fixExpr Question Start\n";
+					fixExpr exp1;
+					fixExpr exp2;
+					fixExpr exp3;
+					prints "fixExpr Question End\n"
+  | CastE (typ, exp) -> prints "fixExpr  CastE Start\n";
+			fixExpr exp;
+			prints "fixExpr  CastE End \n"
+  | AddrOf lval -> prints "fixExpr Addrof Start\n";
+		   fixLval lval ;
+		   prints "fixExpr Addrof End \n"
   | AddrOfLabel ref_stmt -> prints "fixExpr AddrofLabel\n"
-  | StartOf lval -> prints "fixExpr StartOf v\n"
+  | StartOf lval -> prints "fixExpr StartOf Start\n";
+		    fixLval lval;
+		    prints "fixExpr StartOf End\n"
+		    
 
 (* and fixExprName ( expr: exp) = *)
 (*   match expr with *)
@@ -208,8 +231,7 @@ and fixLastCharacter (strs : string) : string =
     !recString
      
 and  concatChars str  varinfo =
-  match (String.make 1 varinfo.[0]) with
-  | "m" | "f" | "("->
+  if (varinfo = "malloc" || varinfo = "free" || (String.contains varinfo '(')) then
     begin
       match str with
 	")" -> recString := !recString ^ ";" ^ varinfo 
@@ -218,25 +240,14 @@ and  concatChars str  varinfo =
       | "c"| "e" -> recString := !recString ^ ";" ^ varinfo
       | _ -> recString :=  varinfo
     end
-  | _ -> ()
+  else
+    ()
 
 and isContainMF str =
   let bm = String.contains str 'm'  in
   let bf = String.contains str 'f' in
   bm || bf
     
-and printFunlist funlist =
-  match funlist with
-    [] -> ()
-  | (fname, record) :: tl when fname <> "" ->
-     print_string (record.fName ^ "() : "); print_newline ();
-     print_string  ( "   " ^ record.bType ); print_newline();
-     printFunlist tl;
-  | _ -> ()
-	 
   
 (*main function calls abstract function *)
-let _ = Main.main (); abstract(!Main.astfile);
-	print_string "\n-----------------------------------------------\n";
-	printFunlist !funlist;
-	print_string "-----------------------------------------------\n";
+let main () = Main.main (); abstract(!Main.astfile)

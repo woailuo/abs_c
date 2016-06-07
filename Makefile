@@ -5,7 +5,7 @@ PROGNAME=abs
 CIL=cil
 
 # The list of .cmx files for trans
-CMXS= uexception.cmx  main.cmx abs.cmx
+CMXS= uexception.cmx  main.cmx abs.cmx oma.cmx
 
 install: $(CMXS)
 	$(OCAMLFIND) $(OCAMLOPT) -o $(PROGNAME) -linkpkg -package $(CIL) $(CMXS)

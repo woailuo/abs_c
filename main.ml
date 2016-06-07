@@ -2,9 +2,10 @@ module F = Frontc
 module C = Cil
 module E = Errormsg
 open Uexception
-
+open Cil
+       
 (* parsing a file. If file name is unvalid, raise error  *)
-let parseOneFile (fname: string) : C.file =
+let  parseOneFile (fname: string) : C.file =
   try
     let cabs, cil =
       try
@@ -17,8 +18,20 @@ let parseOneFile (fname: string) : C.file =
     _ -> raise Err_of_main
 
 let filename = ref "Exprs/vip_file"
+
 let astfile = ref (parseOneFile !filename )
-    
+
+let rec getFunbody g = 
+  match g with
+  |  h :: tl ->
+      begin
+	match h with
+	| GFun (fd, loc) -> fd
+	| _ -> getFunbody tl
+      end
+		  
+let funbody = getFunbody !astfile.globals
+	
 (* main funciton  *)
 let  rec main (): unit =
   C.print_CIL_Input := true;
