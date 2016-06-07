@@ -2,7 +2,7 @@ open Cil
 open Uexception
 module E = Errormsg
 
-let printFlag = false	     
+let printFlag = true
 	     
 type funRecord =
   {mutable fName: string; mutable bType: string; mutable funbody : fundec}
@@ -151,8 +151,7 @@ and fixLval (lv : lval)  =
 and  fixLhost (lhost : lhost) =
   match lhost with 
   | Var varinfo -> prints (" fixLhost Var Start:  " ^ varinfo.vname ^ " \n");
-		   
-		   (* concatChars (fixLastCharacter !recString) varinfo.vname; *)
+		   concatChars (fixLastCharacter !recString) varinfo.vname;
 		   prints " fixLhost Var End \n"
   | Mem exp -> prints "fixLhost Mem Start\n";
 	       fixExpr exp;

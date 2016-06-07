@@ -28,7 +28,8 @@ and comBeh funlist = List.iter comFun !funlist
 
 and  comFun frecord =
   match frecord with
-  | (fname, record) when fname <> "" -> comFunBody record.funbody
+  | (fname, record) when fname <> "" -> bhtString := "";
+					comFunBody record.funbody
   | _ -> ()
 
 and  comFunBody fbody =  comBlock fbody.sbody
@@ -52,27 +53,27 @@ and comStmt (stm: stmt)  =
   | Continue loc -> prints "comStmt Continue \n"
   | If (exp, tb, fb, loc ) -> prints "comStmt If Start \n";
 			      comExpr exp;
-			      let btypestr = !recString in
-			      recString :="";
+			      let btypestr = !bhtString in
+			      bhtString :="";
 			      comBlock tb;
-			      let flag1 = isContainMF !recString in
-			      let tbrec = !recString in
-			      recString := ""; 
+			      let flag1 = isContainMF !bhtString in
+			      let tbrec = !bhtString in
+			      bhtString := ""; 
 			      comBlock fb;
-			      let flag2 = isContainMF !recString in
-			      let fbrec = !recString in
-			      recString := btypestr ;
+			      let flag2 = isContainMF !bhtString in
+			      let fbrec = !bhtString in
+			      bhtString := btypestr ;
 			      begin
 				if (flag1 || flag2)
 				then
 				  begin
 			       	    match flag1, flag2 with
 				    | (true, true) ->
-			     concatChars (comLastCharacter !recString ) ("(" ^ tbrec ^","^fbrec ^")") 
+			     concatChars (comLastCharacter !bhtString ) ("(" ^ tbrec ^","^fbrec ^")") 
 				    | (true, false) ->
-			     concatChars (comLastCharacter !recString ) ("(" ^ tbrec ^","^ "0" ^")")
+			     concatChars (comLastCharacter !bhtString ) ("(" ^ tbrec ^","^ "0" ^")")
 				    | (false, true) ->
-			     concatChars (comLastCharacter !recString ) ("(" ^ "0" ^","^ fbrec ^")")
+			     concatChars (comLastCharacter !bhtString ) ("(" ^ "0" ^","^ fbrec ^")")
 				    | (false , false )-> ()
 				  end
 			      end; 
@@ -130,7 +131,7 @@ and comLval (lv : lval)  =
 and  comLhost (lhost : lhost) =
   match lhost with 
   | Var varinfo -> prints (" comLhost Var Start:  " ^ varinfo.vname ^ " \n");
-		   concatChars (comLastCharacter !recString) varinfo.vname;
+		   concatChars (comLastCharacter !bhtString) varinfo.vname;
 		   prints " comLhost Var End \n"
   | Mem exp -> prints "comLhost Mem Start\n";
 	       comExpr exp;
@@ -206,30 +207,38 @@ and comLastCharacter (strs : string) : string =
   if (len > 0) then
     (String.make 1 strs.[len-1])
   else 
-    !recString
+    !bhtString
      
 and  concatChars str  varinfo =
   if (varinfo = "malloc" || varinfo = "free" || (String.contains varinfo '(')) then
     begin
       match str with
-	")" -> recString := !recString ^ ";" ^ varinfo 
-      | "(" ->  recString := !recString ^ varinfo 
-      | ";" ->  recString := !recString ^ varinfo
-      | "c"| "e" -> recString := !recString ^ ";" ^ varinfo
-      | _ -> recString :=  varinfo
+	")" -> bhtString := !bhtString ^ ";" ^ varinfo 
+      | "(" ->  bhtString := !bhtString ^ varinfo 
+      | ";" ->  bhtString := !bhtString ^ varinfo
+      | "c"| "e" -> bhtString := !bhtString ^ ";" ^ varinfo
+      | _ -> bhtString :=  varinfo
     end
   else
-    ()
+    begin
+      let record =
+	try List.assoc varinfo !funlist with
+	  _ -> {fName = ""; bType = ""; funbody = Main.funbody  } 
+      in
+      if(record.fName <> "") then
+	(
+	  comFunBody record.funbody;
+	  concatChars str record.bType
+	)
+    end
 
 and isContainMF str =
   let bm = String.contains str 'm'  in
   let bf = String.contains str 'f' in
   bm || bf
-							  
   
 (* main function *)	   
-let _ = Abs.main ();
+let _ = Abs.main (); comBeh funlist;
 	print_string "\n-----------------------------------------------\n";
 	printFunlist !funlist;
 	print_string "-----------------------------------------------\n";
-	
