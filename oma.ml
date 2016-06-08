@@ -7,12 +7,6 @@ let funslist = Abs.funlist
 
 let bhtString = ref ""
 let funcName = ref ""
-
-(* type funRecord = *)
-(*   {mutable fName: string; mutable bType: string; mutable funbody : fundec} *)
-
-(* let funlist = *)
-(*   ref (("", {fName=""; bType = ""; funbody = Main.funbody  } ):: []) *)
 		 
 (* print behavioral types of functions*)
 let rec  printFunlist funlist =
@@ -29,7 +23,8 @@ and comBeh funlist = List.iter comFun !funlist
 and  comFun frecord =
   match frecord with
   | (fname, record) when fname <> "" -> bhtString := "";
-					comFunBody record.funbody
+					comFunBody record.funbody;
+					record.bType <- !bhtString 
   | _ -> ()
 
 and  comFunBody fbody =  comBlock fbody.sbody
@@ -227,8 +222,12 @@ and  concatChars str  varinfo =
       in
       if(record.fName <> "") then
 	(
+	  try 
+	  (* comFun (record.fName, record); *)
 	  comFunBody record.funbody;
-	  concatChars str record.bType
+	(* concatChars str record.bType *)
+	  with
+	    _ -> print_string "test ddd \n"
 	)
     end
 
