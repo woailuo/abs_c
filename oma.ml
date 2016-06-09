@@ -1,30 +1,21 @@
 open Cil
 open Uexception
 module E = Errormsg
-open Abs
+open Utype
 
 let funslist = Abs.funlist
 
 let bhtString = ref ""
 let funcName = ref ""
-		 
-(* print behavioral types of functions*)
-let rec  printFunlist funlist =
-  match funlist with
-    [] -> ()
-  | (fname, record) :: tl when fname <> "" ->
-     print_string (record.fName ^ "() : "); print_newline ();
-     print_string  ( "   " ^ record.bType ); print_newline();
-     printFunlist tl;
-  | _ -> ()
 
-and comBeh funlist = List.iter comFun !funlist
+let rec  comBeh funlist = List.iter comFun !funlist
 
 and  comFun frecord =
   match frecord with
   | (fname, record) when fname <> "" -> bhtString := "";
+					funcName := fname;
 					comFunBody record.funbody;
-					record.bType <- !bhtString 
+					record.bType <- !bhtString
   | _ -> ()
 
 and  comFunBody fbody =  comBlock fbody.sbody
@@ -126,8 +117,7 @@ and comLval (lv : lval)  =
 and  comLhost (lhost : lhost) =
   match lhost with 
   | Var varinfo -> prints (" comLhost Var Start:  " ^ varinfo.vname ^ " \n");
-		   concatChars (comLastCharacter !bhtString) varinfo.vname;
-		   prints " comLhost Var End \n"
+		       concatChars (comLastCharacter !bhtString) varinfo.vname
   | Mem exp -> prints "comLhost Mem Start\n";
 	       comExpr exp;
 	       prints "comLhost Mem End\n"
@@ -143,12 +133,6 @@ and comOffset (offset : offset) =
 			    comExpr exp;
 			    comOffset offset ;
 			    prints "comOffset Index End\n" 
-
-(* get the name of lval *)
-(* and  comValofLval (lv: lval) = *)
-(*   match lv with *)
-(*   | (Var varinfo, offset) ->  varinfo.vname *)
-(*   | _ -> "" *)
 
 (*deal with expresion *)
 and comExpr (expr : exp) =
@@ -188,13 +172,6 @@ and comExpr (expr : exp) =
   | StartOf lval -> prints "comExpr StartOf Start\n";
 		    comLval lval;
 		    prints "comExpr StartOf End\n"
-		    
-
-(* and comExprName ( expr: exp) = *)
-(*   match expr with *)
-(*   | Lval (Var v, offset) ->  *)
-(*   | Lval (Mem exp, offset) ->  *)
-(*   | _ ->  *)
 
 (* get the last character *)
 and comLastCharacter (strs : string) : string =
@@ -205,30 +182,34 @@ and comLastCharacter (strs : string) : string =
     !bhtString
      
 and  concatChars str  varinfo =
-  if (varinfo = "malloc" || varinfo = "free" || (String.contains varinfo '(')) then
+  if (varinfo = "malloc" || varinfo = "free" || (String.contains varinfo '(') ) then
     begin
       match str with
-	")" -> bhtString := !bhtString ^ ";" ^ varinfo 
+      | ")" -> bhtString := !bhtString ^ ";" ^ varinfo 
       | "(" ->  bhtString := !bhtString ^ varinfo 
       | ";" ->  bhtString := !bhtString ^ varinfo
       | "c"| "e" -> bhtString := !bhtString ^ ";" ^ varinfo
-      | _ -> bhtString :=  varinfo
+      | "" -> bhtString :=  varinfo  
+      | _ ->  bhtString :=  !bhtString ^";" ^varinfo 
     end
   else
     begin
       let record =
-	try List.assoc varinfo !funlist with
+	try List.assoc ("%"^varinfo^"%") !funslist with
 	  _ -> {fName = ""; bType = ""; funbody = Main.funbody  } 
       in
-      if(record.fName <> "") then
-	(
-	  try 
-	  (* comFun (record.fName, record); *)
-	  comFunBody record.funbody;
-	(* concatChars str record.bType *)
-	  with
-	    _ -> print_string "test ddd \n"
-	)
+      if(record.fName <> "") then (* if equal , then () *)
+	begin
+	  match str with
+	    ")" -> bhtString := !bhtString ^ ";" ^ record.fName
+	  | "(" ->  bhtString := !bhtString ^ record.fName
+	  | ";" ->  bhtString := !bhtString ^ record.fName
+	  | "c"| "e" -> bhtString := !bhtString ^ ";" ^ record.fName
+	  | "" -> bhtString :=  "%"^ varinfo ^ "%"  
+	  | _ ->  bhtString :=  !bhtString ^";" ^ "%" ^ varinfo ^"%" 
+	end
+      else
+	()
     end
 
 and isContainMF str =
@@ -237,7 +218,4 @@ and isContainMF str =
   bm || bf
   
 (* main function *)	   
-let _ = Abs.main (); comBeh funlist;
-	print_string "\n-----------------------------------------------\n";
-	printFunlist !funlist;
-	print_string "-----------------------------------------------\n";
+let main () = Abs.main (); comBeh funslist
