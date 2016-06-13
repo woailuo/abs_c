@@ -1,7 +1,7 @@
 open Cil
+open Utype
 open Uexception
 module ES = ExtString.String
-open Utype
 module E = Errormsg
 
 let funcslist = Oma.funslist
@@ -67,6 +67,16 @@ and deleteBranch funlist =
   | [] -> ()
   | (fname, record) :: tl ->
      let r = Str.regexp "\\((,)\\|(0,)\\|(,0)\\|(0,0)\\)" in
+     let betype =
+       Str.global_replace r "" record.bType
+     in
+     record.bType <- betype
+
+and deleteFinalReturn funlist =
+  match funlist with
+  | [] -> ()
+  | (fname, record) :: tl ->
+     let r = Str.regexp "\\([.]*[;()]%return%\\)" in
      let betype =
        Str.global_replace r "" record.bType
      in

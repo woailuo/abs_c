@@ -1,8 +1,8 @@
 open Cil
+open Utype
 open Uexception
 module E = Errormsg
-open Utype
-       
+
 let funlist =
   ref (("", {fName=""; bType = ""; funbody = Main.funbody  } ):: [])
 

@@ -1,7 +1,8 @@
 open Cil
+open Utype
 open Uexception
 module E = Errormsg
-open Utype
+
 
 let funslist = Abs.funlist
 
@@ -29,8 +30,11 @@ and comStmt (stm: stmt)  =
 		   prints "comStmt Instr End\n"
   | Return (Some exp, loc) -> prints "comStmt Return Start\n";
 			      comExpr exp;
+			      (* ( if(isLastStmt stm) then *)
+				(* concatChars (comLastCharacter !bhtString) "" *)
+			      concatChars (comLastCharacter !bhtString) "%return%" ;
 			      prints "comStmt Return End\n"
-  | Return (refStmt, loc) -> prints "comStmt Return \n"
+  | Return (refStmt, loc) -> prints "comStmt Return \n"; print_string "test \n" ;
   | Goto ( _ ,loc) -> prints "comStmt Goto \n"
   | ComputedGoto (exp, loc) -> prints "comStmt computeGoto Start \n";
 			       comExpr exp;
@@ -55,11 +59,11 @@ and comStmt (stm: stmt)  =
 				  begin
 			       	    match flag1, flag2 with
 				    | (true, true) ->
-			     concatChars (comLastCharacter !bhtString ) ("(" ^ tbrec ^","^fbrec ^")") 
+				       concatChars (comLastCharacter !bhtString ) ("(" ^ tbrec ^","^fbrec ^")") 
 				    | (true, false) ->
-			     concatChars (comLastCharacter !bhtString ) ("(" ^ tbrec ^","^ "0" ^")")
+				       concatChars (comLastCharacter !bhtString ) ("(" ^ tbrec ^","^ "0" ^")")
 				    | (false, true) ->
-			     concatChars (comLastCharacter !bhtString ) ("(" ^ "0" ^","^ fbrec ^")")
+				       concatChars (comLastCharacter !bhtString ) ("(" ^ "0" ^","^ fbrec ^")")
 				    | (false , false )-> ()
 				  end
 			      end; 
@@ -117,7 +121,7 @@ and comLval (lv : lval)  =
 and  comLhost (lhost : lhost) =
   match lhost with 
   | Var varinfo -> prints (" comLhost Var Start:  " ^ varinfo.vname ^ " \n");
-		       concatChars (comLastCharacter !bhtString) varinfo.vname
+		   concatChars (comLastCharacter !bhtString) varinfo.vname
   | Mem exp -> prints "comLhost Mem Start\n";
 	       comExpr exp;
 	       prints "comLhost Mem End\n"
@@ -182,7 +186,7 @@ and comLastCharacter (strs : string) : string =
     !bhtString
      
 and  concatChars str  varinfo =
-  if (varinfo = "malloc" || varinfo = "free" || (String.contains varinfo '(') ) then
+  if (varinfo = "malloc" || varinfo = "free" || varinfo = "%return%" || (String.contains varinfo '(') ) then
     begin
       match str with
       | ")" -> bhtString := !bhtString ^ ";" ^ varinfo 
@@ -211,7 +215,11 @@ and  concatChars str  varinfo =
       else
 	()
     end
-
+and isLastStmt stmt =
+  match stmt.succs with
+  | [] -> true
+  | hd :: tl -> false
+		  
 and isContainMF str =
   let bm = String.contains str 'm'  in
   let bf = String.contains str 'f' in
