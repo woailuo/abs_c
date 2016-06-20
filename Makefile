@@ -8,7 +8,7 @@ PACKAGE=cil,extlib
 
 
 # The list of .cmx files for trans
-CMXS= uexception.cmx utype.cmx main.cmx abs.cmx oma.cmx arec.cmx
+CMXS= uexception.cmx utype.cmx main.cmx abs.cmx trs.ml oma.cmx arec.cmx
 
 install: $(CMXS)
 	$(OCAMLFIND) $(OCAMLOPT) -o $(PROGNAME) -linkpkg -package $(PACKAGE) $(CMXS)
