@@ -3,7 +3,6 @@ open Utype
 open Uexception
 module E = Errormsg
 
-
 let funslist = Abs.funlist
 
 let bhtString = ref ""
@@ -23,7 +22,8 @@ and  comFunBody fbody =  comBlock fbody.sbody
 
 and comBlock fblock = List.iter comStmt fblock.bstmts
 
-and comStmt (stm: stmt)  = 
+and comStmt (stm: stmt)  =
+  isLastStmt stm;
   match stm.skind with
   | Instr ilist -> prints "comStmt Instr Start \n" ;
 		   comInstrs  ilist;
@@ -35,6 +35,7 @@ and comStmt (stm: stmt)  =
 			      concatChars (comLastCharacter !bhtString) "%return%" ;
 			      prints "comStmt Return End\n"
   | Return (refStmt, loc) -> prints "comStmt Return \n"; print_string "test \n" ;
+    print_string "this is a test \n";
   | Goto ( _ ,loc) -> prints "comStmt Goto \n"
   | ComputedGoto (exp, loc) -> prints "comStmt computeGoto Start \n";
 			       comExpr exp;
@@ -43,7 +44,9 @@ and comStmt (stm: stmt)  =
   | Continue loc -> prints "comStmt Continue \n"
   | If (exp, tb, fb, loc ) -> prints "comStmt If Start \n";
 			      comExpr exp;
-			      let btypestr = !bhtString in
+                              let isp = isPointer exp in
+                              let prestr= if (isp) then "("^ (getStructure exp)^ ")" else "($)" in
+                              let btypestr = !bhtString in
 			      bhtString :="";
 			      comBlock tb;
 			      let flag1 = isContainMF !bhtString in
@@ -59,14 +62,14 @@ and comStmt (stm: stmt)  =
 				  begin
 			       	    match flag1, flag2 with
 				    | (true, true) ->
-				       concatChars (comLastCharacter !bhtString ) ("(" ^ tbrec ^","^fbrec ^")") 
+				       concatChars (comLastCharacter !bhtString ) (prestr ^"(" ^ tbrec ^","^fbrec ^")") 
 				    | (true, false) ->
-				       concatChars (comLastCharacter !bhtString ) ("(" ^ tbrec ^","^ "0" ^")")
+				       concatChars (comLastCharacter !bhtString ) (prestr ^"(" ^ tbrec ^","^ "0" ^")")
 				    | (false, true) ->
-				       concatChars (comLastCharacter !bhtString ) ("(" ^ "0" ^","^ fbrec ^")")
+				       concatChars (comLastCharacter !bhtString ) (prestr ^ "(" ^ "0" ^","^ fbrec ^")")
 				    | (false , false )-> ()
 				  end
-			      end; 
+			      end;
 			      prints "comStmt If End\n"
   | Switch (exp, blk, stmlist, loc) -> prints "comStmt Switch Start \n";
 				       comExpr exp;
@@ -117,9 +120,9 @@ and comLval (lv : lval)  =
     (lhost, offset) ->  prints "comLval Start \n" ; comLhost lhost; comOffset offset ;
 			prints "comLval End \n"
 
-(*deal with Lval's lhost *)			 
+(*deal with Lval's lhost *)
 and  comLhost (lhost : lhost) =
-  match lhost with 
+  match lhost with
   | Var varinfo -> prints (" comLhost Var Start:  " ^ varinfo.vname ^ " \n");
 		   concatChars (comLastCharacter !bhtString) varinfo.vname
   | Mem exp -> prints "comLhost Mem Start\n";
@@ -182,9 +185,9 @@ and comLastCharacter (strs : string) : string =
   let len  = String.length strs in
   if (len > 0) then
     (String.make 1 strs.[len-1])
-  else 
+  else
     !bhtString
-     
+
 and  concatChars str  varinfo =
   if (varinfo = "malloc" || varinfo = "free" || varinfo = "%return%" || (String.contains varinfo '(') ) then
     begin
@@ -209,21 +212,89 @@ and  concatChars str  varinfo =
 	  | "(" ->  bhtString := !bhtString ^ record.fName
 	  | ";" ->  bhtString := !bhtString ^ record.fName
 	  | "c"| "e" -> bhtString := !bhtString ^ ";" ^ record.fName
-	  | "" -> bhtString :=  "%"^ varinfo ^ "%"  
-	  | _ ->  bhtString :=  !bhtString ^";" ^ "%" ^ varinfo ^"%" 
+	  | "" -> bhtString :=  "%"^ varinfo ^ "%" 
+	  | _ ->  bhtString :=  !bhtString ^";" ^ "%" ^ varinfo ^"%"
 	end
       else
 	()
     end
 and isLastStmt stmt =
   match stmt.succs with
-  | [] -> true
-  | hd :: tl -> false
-		  
+  | [] -> print_string "no last stat \n";true
+  | hd :: tl -> print_string " has last stat \n"; false
+
 and isContainMF str =
   let bm = String.contains str 'm'  in
   let bf = String.contains str 'f' in
   bm || bf
-  
-(* main function *)	   
+
+and isPointer expr =
+    match expr with
+  Const    _ -> prints "const \n"; false
+    | Lval   lv  -> prints "lval \n" ; isPointer2 lv
+    | SizeOf   _ -> prints "sizeof \n" ; false
+    | SizeOfE    _ -> prints "sizeofe \n"; false
+    | SizeOfStr  _ -> prints "sizeofstr \n"; false
+    | AlignOf      _ -> prints "alignof \n"; false
+    | AlignOfE     _ -> prints "alignofe \n"; false
+    | UnOp         _ -> prints "unop \n"; false
+    | BinOp        _ -> prints "binop \n"; false
+    | Question   _ -> prints "question \n"; false
+    | CastE        _ -> prints "caste \n"; false
+    | AddrOf     _ -> prints "addrof \n"; false
+    | AddrOfLabel   _ -> prints "addroflabel \n"; false
+    | StartOf     _ -> prints "startof \n"; false
+
+and isPointer2  (lv : lval) =
+  match lv with
+    | (Var var, offset) ->  pointerType var.vtype
+    | (Mem exp, offset) ->  isPointer exp
+
+and pointerType (vtype:typ) : bool =
+  match vtype with
+    TVoid _   -> prints " tvoid\n"; false
+  | TInt _  -> prints " tint\n";  false
+  | TFloat  _ -> prints " tfloat\n";  false
+  | TPtr (ptype,attrib) -> prints "pointer type \n"; true
+  | TArray (typ, eop, attr) -> pointerType typ
+  | TFun _ -> prints " tfun\n";  false
+  | TNamed _  -> prints " tnamed\n";  false
+  | TComp _ -> prints " tcomp\n";  false
+  | TEnum _ -> prints " tenum\n";  false
+  | TBuiltin_va_list  _ -> prints " tbuiltin_va_list\n";  false
+
+and getStructure (expr : exp) : string =
+  match expr with
+  | Lval(Var vinfo, Index (e, offset)) ->
+    (vinfo.vname) ^"[" ^(getStructure e)^"]"^ (getOffset offset)
+  | Lval (Var vinfo, _) -> vinfo.vname
+  | Lval (Mem lve, NoOffset) -> "*" ^ ( getStructure lve )
+  | Lval (Mem lve, Field (ffinfo, NoOffset)) ->
+     (getStructure lve ) ^ "->"^ ffinfo.fname
+  | Lval (Mem lve, Field (ffinfo, foffset)) ->
+     (getStructure lve ) ^ "->"^ ffinfo.fname ^ "->"^getOffset foffset
+  | Lval (Mem lve, Index _) ->prints " getstructure Index  \n"; ""
+  | CastE (typ, exp)-> prints " rasise cast  \n";
+                        getStructure exp
+   | BinOp  (binop, e1, e2,typ) ->  prints " Start from binop to test structure \n";
+                                    (getStructure e1) ^ (getStructure e2)
+   | Const c  ->  (match c with
+                     CInt64 (a,b,c) ->  prints " cint 64\n";   (string_of_int (i64_to_int a))
+                   | CStr s -> prints (" cstr s : " ^ s ^ " \n");""
+                   | CWStr _ -> prints " cwstr \n";""
+                   | CChr _ -> prints " cchr  \n";""
+                   | CReal _ -> prints " creal \n";""
+                   | CEnum _ -> prints " cenum \n";"" )
+    | _ -> prints " other is empty string: \n "; ""
+
+and getOffset (offset : offset):string =
+  match offset with
+      NoOffset -> prints " get offset : no offset \n";  ""
+    | Field(finfo, NoOffset) -> finfo.fname
+    | Field(finfo, foffset) -> finfo.fname ^ "->"^getOffset foffset
+    | Index(e, NoOffset) -> "[" ^ (getStructure e)^ "]"
+    | Index(e, inoffset) -> "[" ^ (getStructure e)^ "]"  ^ (getOffset inoffset)
+
+    
+(* main function *)
 let main () = Abs.main (); comBeh funslist

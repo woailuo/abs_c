@@ -38,7 +38,7 @@ and rplFun2 record funlist =
      rplReflexiveFun (record.fName, record);
      rplFun2 record tl
   | _ -> ()
-	   
+
 and  rplReflexiveFun func =
   match func with
   | (fname, record)  when (fname <> "" && String.contains record.bType '%') ->
@@ -81,7 +81,7 @@ and deleteFinalReturn funlist =
        Str.global_replace r "" record.bType
      in
      record.bType <- betype
-		       
+
 let _ = Oma.main ();
 
 	rplFunclist !funcslist;

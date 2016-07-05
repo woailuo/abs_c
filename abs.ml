@@ -9,7 +9,7 @@ let funlist =
 (* record the behavioral type *)
 let recString = ref ""
 let recFName = ref ""
-		   
+
 (* start from here:  behavioral abstraction *)
 let rec  abstract (astfile : file ) : unit  =
   List.iter (fixGlobal) (astfile.globals)
@@ -30,6 +30,7 @@ and  fixGlobal (glb: global ) : unit =
      recFName := fname;
      recString := "";
      (* fixFunc fd; *)
+     prepareCFG fd;
      funlist := (("%"^fname^"%", {fName = "%"^fname^"%"; bType = !recString; funbody = fd }) :: !funlist );
      prints "fixGlobal : GFun End \n"
   | GAsm (str, loc) -> prints "fixGlobal : GAsm \n"
@@ -37,4 +38,12 @@ and  fixGlobal (glb: global ) : unit =
   | GText str -> prints "fixGlobal : GTest \n"
 
 (*main function calls abstract function *)
-let main () = Main.main (); abstract(!Main.astfile)
+let main () = Main.main ();
+  (  let channel = open_out "rewritten_file1.c" in
+     (dumpFile (!printerForMaincil) channel "rewritten_file1.c") !Main.astfile;
+     close_out channel );
+  Cfg.computeFileCFG(!Main.astfile);
+  abstract(!Main.astfile);
+( let channel2 = open_out "rewritten_file2.c" in
+     (dumpFile (!printerForMaincil) channel2 "rewritten_file2.c") !Main.astfile;
+     close_out channel2);
