@@ -805,8 +805,8 @@ extern int getloadavg (double __loadavg[], int __nelem)
 int main(int argc, char *argv[]){
   int *n = (int*)malloc(sizeof(int));
   int **p = (int**)malloc(sizeof(int));
-  int x = 3;
-  if(*p){
+  int a = 3;
+  if(p){
     int *x =(int*)malloc(sizeof(int));
     *p = x;
     **p = 10;
@@ -816,7 +816,7 @@ int main(int argc, char *argv[]){
   else{
     printf(" 1st: n is a null pointer \n ");
   }
-  if(n){
+  if(p){
     free(*p);
     *p = ((void *)0);
     return 0;
@@ -830,7 +830,7 @@ int main(int argc, char *argv[]){
     n = ((void *)0);
     printf(" 3rd: n has been deallocated \n ");
   }
-  if(x > 10){
+  if(p){
     free(p);
     p = ((void *)0);
     printf(" P has been deallocated \n ");
