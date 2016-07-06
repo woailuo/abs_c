@@ -31,47 +31,63 @@ and comStmt (stm: stmt)  =
   | Return (Some exp, loc) -> prints "comStmt Return Start\n";
 			      comExpr exp;
 			      (* ( if(isLastStmt stm) then *)
-				(* concatChars (comLastCharacter !bhtString) "" *)
+			      (* concatChars (comLastCharacter !bhtString) "" *)
 			      concatChars (comLastCharacter !bhtString) "%return%" ;
 			      prints "comStmt Return End\n"
-  | Return (refStmt, loc) -> prints "comStmt Return \n"; print_string "test \n" ;
-    print_string "this is a test \n";
+  | Return (refStmt, loc) -> prints "comStmt Return \n"; prints "test \n" ;
+    prints "this is a test \n";
   | Goto ( _ ,loc) -> prints "comStmt Goto \n"
   | ComputedGoto (exp, loc) -> prints "comStmt computeGoto Start \n";
 			       comExpr exp;
 			       prints "comStmt computeGoto End \n";
   | Break loc -> prints "comStmt Break \n"
   | Continue loc -> prints "comStmt Continue \n"
+  | If(Lval (Var varinfo, offset), tb, fb, loc) when Str.string_match (Str.regexp "lconst_") varinfo.vname 0 ->
+    let r = Str.regexp "lconst_" in
+    let constStr = Str.global_replace r "" varinfo.vname in
+    let r2 = Str.regexp "\$" in
+    let constStr2 = Str.global_replace r2 "*" constStr in
+    let constStr3 = "const" ^ "(" ^ constStr2 ^ ")" in
+    let prebht = !bhtString in
+    bhtString := "";
+    comBlock tb;
+    let tbtype = !bhtString in
+    let flag =   isContainMF tbtype  in
+    begin
+      match flag with
+        | false -> bhtString := prebht
+        | true -> bhtString := prebht; concatChars (comLastCharacter !bhtString ) ( constStr3 ^ "(" ^ tbtype ^ ")") 
+    end
   | If (exp, tb, fb, loc ) -> prints "comStmt If Start \n";
-			      comExpr exp;
-                              let isp = isPointer exp in
-                              let prestr= if (isp) then "("^ (getStructure exp)^ ")" else "($)" in
-                              let btypestr = !bhtString in
-			      bhtString :="";
-			      comBlock tb;
-			      let flag1 = isContainMF !bhtString in
-			      let tbrec = !bhtString in
-			      bhtString := ""; 
-			      comBlock fb;
-			      let flag2 = isContainMF !bhtString in
-			      let fbrec = !bhtString in
-			      bhtString := btypestr ;
-			      begin
-				if (flag1 || flag2)
-				then
-				  begin
-			       	    match flag1, flag2 with
-				    | (true, true) ->
-				       concatChars (comLastCharacter !bhtString ) (prestr ^"(" ^ tbrec ^","^fbrec ^")") 
-				    | (true, false) ->
-				       concatChars (comLastCharacter !bhtString ) (prestr ^"(" ^ tbrec ^","^ "0" ^")")
-				    | (false, true) ->
-				       concatChars (comLastCharacter !bhtString ) (prestr ^ "(" ^ "0" ^","^ fbrec ^")")
-				    | (false , false )-> ()
-				  end
-			      end;
-			      prints "comStmt If End\n"
-  | Switch (exp, blk, stmlist, loc) -> prints "comStmt Switch Start \n";
+      comExpr exp;
+      let isp = isPointer exp in
+      let prestr= if (isp) then "("^ (getStructure exp)^ ")" else "($)" in
+      let btypestr = !bhtString in
+      bhtString :="";
+      comBlock tb;
+      let flag1 = isContainMF !bhtString in
+      let tbrec = !bhtString in
+      bhtString := ""; 
+      comBlock fb;
+      let flag2 = isContainMF !bhtString in
+      let fbrec = !bhtString in
+      bhtString := btypestr ;
+      begin
+	if (flag1 || flag2)
+	then
+	  begin
+	    match flag1, flag2 with
+	      | (true, true) ->
+		concatChars (comLastCharacter !bhtString ) (prestr ^"(" ^ tbrec ^","^fbrec ^")") 
+	      | (true, false) ->
+		concatChars (comLastCharacter !bhtString ) (prestr ^"(" ^ tbrec ^","^ "0" ^")")
+	      | (false, true) ->
+		concatChars (comLastCharacter !bhtString ) (prestr ^ "(" ^ "0" ^","^ fbrec ^")")
+	      | (false , false )-> ()
+	  end
+      end;
+      prints "comStmt If End\n"
+    | Switch (exp, blk, stmlist, loc) -> prints "comStmt Switch Start \n";
 				       comExpr exp;
 				       comBlock blk;
 				       (* comStmts stmlist; *)
@@ -220,8 +236,8 @@ and  concatChars str  varinfo =
     end
 and isLastStmt stmt =
   match stmt.succs with
-  | [] -> print_string "no last stat \n";true
-  | hd :: tl -> print_string " has last stat \n"; false
+  | [] -> prints "no last stat \n";true
+  | hd :: tl -> prints " has last stat \n"; false
 
 and isContainMF str =
   let bm = String.contains str 'm'  in
@@ -295,6 +311,6 @@ and getOffset (offset : offset):string =
     | Index(e, NoOffset) -> "[" ^ (getStructure e)^ "]"
     | Index(e, inoffset) -> "[" ^ (getStructure e)^ "]"  ^ (getOffset inoffset)
 
-    
+      
 (* main function *)
 let main () = Abs.main (); comBeh funslist

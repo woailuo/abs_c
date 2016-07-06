@@ -806,24 +806,25 @@ int main(int argc, char *argv[]){
   int *n = (int*)malloc(sizeof(int));
   int **p = (int**)malloc(sizeof(int));
   int a = 3;
+  int lconst_$p = 1;
+  if(lconst_$p){
   if(p){
-    int *x =(int*)malloc(sizeof(int));
-    *p = x;
-    **p = 10;
-    return 0;
-    printf(" x = %d,  **p ＝ %d \n", *x,**p);
-  }
-  else{
-    printf(" 1st: n is a null pointer \n ");
-  }
-  if(p){
-    free(*p);
-    *p = ((void *)0);
-    return 0;
-    printf(" x has been deallocated \n");
-  }
-  else{
-    printf(" 2nd:  n is a null pointer \n ");
+      int *x =(int*)malloc(sizeof(int));
+      *p = x;
+      **p = 10;
+      printf(" x = %d,  **p ＝ %d \n", *x,**p);
+    }
+    else{
+      printf(" 1st: n is a null pointer \n ");
+    }
+    if(p){
+      free(*p);
+      *p = ((void *)0);
+      printf(" x has been deallocated \n");
+    }
+    else{
+      printf(" 2nd:  n is a null pointer \n ");
+    }
   }
   if(n){
     free(n);
