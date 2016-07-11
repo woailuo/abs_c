@@ -40,12 +40,6 @@ and  fixGlobal (glb: global ) : unit =
   | GText str -> prints "fixGlobal : GTest \n"
 
 (*main function calls abstract function *)
-<<<<<<< HEAD
-let main () =
-  Main.main ();
-  Cfg.computeFileCFG (!Main.astfile);
-  abstract(!Main.astfile)
-=======
 let main () = Main.main ();
 
   (  let channel = open_out "rewritten_file1.c" in
@@ -58,5 +52,5 @@ let main () = Main.main ();
 
   ( let channel2 = open_out "rewritten_file2.c" in
      (dumpFile (!printerForMaincil) channel2 "rewritten_file2.c") !Main.astfile;
-     close_out channel2);
->>>>>>> 9f4ebdb7e332ab9626a028f84c1587c5a7acb284
+     close_out channel2)
+

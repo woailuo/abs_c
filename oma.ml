@@ -22,12 +22,8 @@ and  comFunBody fbody =  comBlock fbody.sbody
 
 and comBlock fblock = List.iter comStmt fblock.bstmts
 
-<<<<<<< HEAD
-and comStmt (stm: stmt)  = 			      isLastStmt stm;
-=======
 and comStmt (stm: stmt)  =
   isLastStmt stm;
->>>>>>> 9f4ebdb7e332ab9626a028f84c1587c5a7acb284
   match stm.skind with
   | Instr ilist -> prints "comStmt Instr Start \n" ;
 		   comInstrs  ilist;
@@ -39,14 +35,8 @@ and comStmt (stm: stmt)  =
 			      (* concatChars (comLastCharacter !bhtString) "" *)
 			      concatChars (comLastCharacter !bhtString) "%return%" ;
 			      prints "comStmt Return End\n"
-<<<<<<< HEAD
-  | Return (refStmt, loc) -> prints "comStmt Return \n";
-
-			     print_string "test \n" ;
-=======
   | Return (refStmt, loc) -> prints "comStmt Return \n"; prints "test \n" ;
     prints "this is a test \n";
->>>>>>> 9f4ebdb7e332ab9626a028f84c1587c5a7acb284
   | Goto ( _ ,loc) -> prints "comStmt Goto \n"
   | ComputedGoto (exp, loc) -> prints "comStmt computeGoto Start \n";
 			       comExpr exp;
@@ -56,7 +46,7 @@ and comStmt (stm: stmt)  =
   | If(Lval (Var varinfo, offset), tb, fb, loc) when Str.string_match (Str.regexp "lconst_") varinfo.vname 0 ->
     let r = Str.regexp "lconst_" in
     let constStr = Str.global_replace r "" varinfo.vname in
-    let r2 = Str.regexp "\$" in
+    let r2 = Str.regexp "\\$" in
     let constStr2 = Str.global_replace r2 "*" constStr in
     let constStr3 = "const" ^ "(" ^ constStr2 ^ ")" in
     let prebht = !bhtString in
@@ -253,26 +243,14 @@ and  concatChars str  varinfo =
     end
 and isLastStmt stmt =
   match stmt.succs with
-<<<<<<< HEAD
-  | [] -> print_string  " no last stmt\n" ; true
-  | hd :: tl -> print_string  " has last stmt\n" ;false
-		  
-=======
   | [] -> prints "no last stat \n";true
   | hd :: tl -> prints " has last stat \n"; false
 
->>>>>>> 9f4ebdb7e332ab9626a028f84c1587c5a7acb284
+
 and isContainMF str =
   let bm = String.contains str 'm'  in
   let bf = String.contains str 'f' in
   bm || bf
-<<<<<<< HEAD
-  
-(* main function *)	   
-let main () =
-  Abs.main ();
-  comBeh funslist
-=======
 
 and isPointer expr =
     match expr with
@@ -343,4 +321,4 @@ and getOffset (offset : offset):string =
 
 (* main function *)
 let main () = Abs.main (); comBeh funslist
->>>>>>> 9f4ebdb7e332ab9626a028f84c1587c5a7acb284
+

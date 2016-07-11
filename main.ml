@@ -29,6 +29,7 @@ let rec getFunbody g =
 	| GFun (fd, loc) -> fd
 	| _ -> getFunbody tl
       end
+	
 
 let funbody = getFunbody !astfile.globals
 

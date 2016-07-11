@@ -3,5 +3,4 @@
 *.aux
 *.cm[iox]
 *#*#
-*.c
 out
