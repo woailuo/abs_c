@@ -2,6 +2,7 @@ open Cil
 open Utype
 open Uexception
 module E = Errormsg
+module Ret = Oneret
 
 let funlist =
   ref (("", {fName=""; bType = ""; funbody = Main.funbody  } ):: [])
@@ -30,6 +31,7 @@ and  fixGlobal (glb: global ) : unit =
      recFName := fname;
      recString := "";
      (* fixFunc fd; *)
+     Ret.oneret fd;
      prepareCFG fd;
      funlist := (("%"^fname^"%", {fName = "%"^fname^"%"; bType = !recString; funbody = fd }) :: !funlist );
      prints "fixGlobal : GFun End \n"
@@ -39,11 +41,15 @@ and  fixGlobal (glb: global ) : unit =
 
 (*main function calls abstract function *)
 let main () = Main.main ();
+
   (  let channel = open_out "rewritten_file1.c" in
      (dumpFile (!printerForMaincil) channel "rewritten_file1.c") !Main.astfile;
      close_out channel );
+
   Cfg.computeFileCFG(!Main.astfile);
+
   abstract(!Main.astfile);
-( let channel2 = open_out "rewritten_file2.c" in
+
+  ( let channel2 = open_out "rewritten_file2.c" in
      (dumpFile (!printerForMaincil) channel2 "rewritten_file2.c") !Main.astfile;
      close_out channel2);

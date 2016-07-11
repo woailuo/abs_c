@@ -76,17 +76,18 @@ and deleteFinalReturn funlist =
   match funlist with
   | [] -> ()
   | (fname, record) :: tl ->
-     let r = Str.regexp "\\([.]*[;()]%return%\\)" in
+     let r = Str.regexp "[.]*[;()]%return%$" in      (* "\\([.]*[;()]%return%\\)"     "[.]*[;()]%return%$"  *)
      let betype =
        Str.global_replace r "" record.bType
      in
      record.bType <- betype
 
 let _ = Oma.main ();
-
 	rplFunclist !funcslist;
-	deleteBranch !funcslist;
-	deleteSemi !funcslist;
+
+        deleteBranch !funcslist;
+        deleteFinalReturn !funcslist ;
+        deleteSemi !funcslist;
 
 	print_string "\n-----------------------------------------------\n";
 	printFunlist !funcslist;

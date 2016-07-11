@@ -803,38 +803,22 @@ extern int getloadavg (double __loadavg[], int __nelem)
      __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 int main(int argc, char *argv[]){
-  int *n = (int*)malloc(sizeof(int));
-  int **p = (int**)malloc(sizeof(int));
-  int a = 3;
-  int lconst_p = 1;
-  if(lconst_p){
-  if(p){
-      int *x =(int*)malloc(sizeof(int));
-      *p = x;
-      **p = 10;
-      printf(" x = %d,  **p ＝ %d \n", *x,**p);
-    }
-    else{
-      printf(" 1st: n is a null pointer \n ");
-    }
-    if(p){
-      free(*p);
-      *p = ((void *)0);
-      printf(" x has been deallocated \n");
-    }
-    else{
-      printf(" 2nd:  n is a null pointer \n ");
-    }
-  }
-  if(n){
-    free(n);
-    n = ((void *)0);
-    printf(" 3rd: n has been deallocated \n ");
-  }
-  if(p){
-    free(p);
-    p = ((void *)0);
-    printf(" P has been deallocated \n ");
-  }
+  int *p = (int*)malloc(sizeof(int));
+  int *q = (int*)malloc(sizeof(int));
+  int n, m ;
+  scanf("%d, %d", &n, &m);
+  if(n > 10){
+    printf(" input num is greater than 10 \n");
+    if(p) { free(p); p = ((void *)0); printf(" Pointer p has been deallocated \n");}
+    if(q) { free(q); q = ((void *)0); printf(" Pointer q has been deallocated \n");}
     return 0;
+  }
+  if(p)
+    *p = n;
+  if(q)
+    *q = m;
+    printf(" n + m = %d\n", *p + *q);
+    if(p) { free(p); p = ((void *)0); printf(" Pointer p has been deallocated \n");}
+    if(q) { free(q); q = ((void *)0); printf(" Pointer q has been deallocated \n");}
+  return 0;
 }

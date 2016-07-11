@@ -311,6 +311,5 @@ and getOffset (offset : offset):string =
     | Index(e, NoOffset) -> "[" ^ (getStructure e)^ "]"
     | Index(e, inoffset) -> "[" ^ (getStructure e)^ "]"  ^ (getOffset inoffset)
 
-      
 (* main function *)
 let main () = Abs.main (); comBeh funslist
