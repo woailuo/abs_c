@@ -6,7 +6,6 @@ EXTLIB=extlib
 CIL=cil
 PACKAGE=cil,extlib
 
-
 # The list of .cmx files for trans
 CMXS= uexception.cmx utype.cmx main.cmx abs.cmx trs.ml oma.cmx arec.cmx
 
@@ -25,3 +24,4 @@ clean:
 	rm -f *.cm[iox]  *.o *~ *.out
 	rm -f *#*#
 
+# main -> abs -> oma -> arec 

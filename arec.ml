@@ -17,8 +17,8 @@ let rec  printFunlist funlist =
   | _ -> ()
 
 and  rplFunclist funlist =
-  List.iter rplReflexiveFun !funcslist;
-  List.iter rplFun !funcslist
+  List.iter rplReflexiveFun !funcslist; (*deal with self-recursive call function *)
+  List.iter rplFun !funcslist (* deal with recursive call function *)
 
 and rplFun funlist =
   match funlist with

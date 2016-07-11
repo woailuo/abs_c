@@ -3,7 +3,6 @@ open Utype
 open Uexception
 module E = Errormsg
 
-
 let funslist = Abs.funlist
 
 let bhtString = ref ""
@@ -23,18 +22,21 @@ and  comFunBody fbody =  comBlock fbody.sbody
 
 and comBlock fblock = List.iter comStmt fblock.bstmts
 
-and comStmt (stm: stmt)  = 
+and comStmt (stm: stmt)  = 			      isLastStmt stm;
   match stm.skind with
   | Instr ilist -> prints "comStmt Instr Start \n" ;
 		   comInstrs  ilist;
 		   prints "comStmt Instr End\n"
   | Return (Some exp, loc) -> prints "comStmt Return Start\n";
 			      comExpr exp;
+			      isLastStmt stm;
 			      (* ( if(isLastStmt stm) then *)
 				(* concatChars (comLastCharacter !bhtString) "" *)
 			      concatChars (comLastCharacter !bhtString) "%return%" ;
 			      prints "comStmt Return End\n"
-  | Return (refStmt, loc) -> prints "comStmt Return \n"; print_string "test \n" ;
+  | Return (refStmt, loc) -> prints "comStmt Return \n";
+
+			     print_string "test \n" ;
   | Goto ( _ ,loc) -> prints "comStmt Goto \n"
   | ComputedGoto (exp, loc) -> prints "comStmt computeGoto Start \n";
 			       comExpr exp;
@@ -88,6 +90,12 @@ and comStmt (stm: stmt)  =
 						   comExpr exp;
 						   comBlock blk2;
 						   prints "comStmt TryExcept End\n"
+
+(* check whether exp is a simple pointer or not . simple pointer, e.g. *p, *)
+(* and isSimplePointer exp = *)
+  (* match  exp  with *)
+  (* |  *)
+
 
 (* deal with instructions*)
 and comInstrs ins : unit  = List.iter comInstr ins
@@ -217,8 +225,8 @@ and  concatChars str  varinfo =
     end
 and isLastStmt stmt =
   match stmt.succs with
-  | [] -> true
-  | hd :: tl -> false
+  | [] -> print_string  " no last stmt\n" ; true
+  | hd :: tl -> print_string  " has last stmt\n" ;false
 		  
 and isContainMF str =
   let bm = String.contains str 'm'  in
@@ -226,4 +234,6 @@ and isContainMF str =
   bm || bf
   
 (* main function *)	   
-let main () = Abs.main (); comBeh funslist
+let main () =
+  Abs.main ();
+  comBeh funslist

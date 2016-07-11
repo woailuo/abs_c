@@ -37,4 +37,7 @@ and  fixGlobal (glb: global ) : unit =
   | GText str -> prints "fixGlobal : GTest \n"
 
 (*main function calls abstract function *)
-let main () = Main.main (); abstract(!Main.astfile)
+let main () =
+  Main.main ();
+  Cfg.computeFileCFG (!Main.astfile);
+  abstract(!Main.astfile)
