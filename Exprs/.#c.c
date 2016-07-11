@@ -1,1 +1,0 @@
-tanki@lyra.fos.kuis.kyoto-u.ac.jp.7844:1467511064
