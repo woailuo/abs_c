@@ -38,7 +38,7 @@ and rplFun2 record funlist =
      rplReflexiveFun (record.fName, record);
      rplFun2 record tl
   | _ -> ()
-	   
+
 and  rplReflexiveFun func =
   match func with
   | (fname, record)  when (fname <> "" && String.contains record.bType '%') ->
@@ -76,17 +76,18 @@ and deleteFinalReturn funlist =
   match funlist with
   | [] -> ()
   | (fname, record) :: tl ->
-     let r = Str.regexp "\\([.]*[;()]%return%\\)" in
+     let r = Str.regexp "[.]*[;()]%return%$" in      (* "\\([.]*[;()]%return%\\)"     "[.]*[;()]%return%$"  *)
      let betype =
        Str.global_replace r "" record.bType
      in
      record.bType <- betype
-		       
-let _ = Oma.main ();
 
+let _ = Oma.main ();
 	rplFunclist !funcslist;
-	deleteBranch !funcslist;
-	deleteSemi !funcslist;
+
+        deleteBranch !funcslist;
+        deleteFinalReturn !funcslist ;
+        deleteSemi !funcslist;
 
 	print_string "\n-----------------------------------------------\n";
 	printFunlist !funcslist;
