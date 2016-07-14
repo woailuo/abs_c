@@ -30,7 +30,7 @@ and comStmt (stm: stmt)  =
 		   prints "comStmt Instr End\n"
   | Return (Some exp, loc) -> prints "comStmt Return Start\n";
 			      comExpr exp;
-			      isLastStmt stm;
+			      (* isLastStmt stm; *)
 			      (* ( if(isLastStmt stm) then *)
 			      (* concatChars (comLastCharacter !bhtString) "" *)
 			      concatChars (comLastCharacter !bhtString) "%return%" ;
@@ -243,8 +243,8 @@ and  concatChars str  varinfo =
     end
 and isLastStmt stmt =
   match stmt.succs with
-  | [] -> prints "no last stat \n";true
-  | hd :: tl -> prints " has last stat \n"; false
+  | [] -> print_string "no last stat \n";true
+  | hd :: tl -> print_string " has last stat \n"; false
 
 
 and isContainMF str =

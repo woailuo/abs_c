@@ -26,13 +26,13 @@ and  fixGlobal (glb: global ) : unit =
   | GVarDecl (varinfo, loc) ->  prints "fixGlobal : GVarDecl \n"
   | GVar (varinfo, initinfo, loc) -> prints "fixGlobal : Gvar \n"
   | GFun (fd, loc) ->
-     prints "fixGlobal : GFun Start \n";
+    prints "fixGlobal : GFun Start \n";
      let fname = fd.svar.vname in
      recFName := fname;
      recString := "";
      (* fixFunc fd; *)
      Ret.oneret fd;
-     prepareCFG fd;
+     (* prepareCFG fd; *)
      funlist := (("%"^fname^"%", {fName = "%"^fname^"%"; bType = !recString; funbody = fd }) :: !funlist );
      prints "fixGlobal : GFun End \n"
   | GAsm (str, loc) -> prints "fixGlobal : GAsm \n"
@@ -53,4 +53,3 @@ let main () = Main.main ();
   ( let channel2 = open_out "rewritten_file2.c" in
      (dumpFile (!printerForMaincil) channel2 "rewritten_file2.c") !Main.astfile;
      close_out channel2)
-
