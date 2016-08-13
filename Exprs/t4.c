@@ -14,7 +14,6 @@ int main(){
   }
   else{
     printf(" x <= 10 \n");
-    return 0;
   }
   printf(" x * 2 is %d \n", x * 2);
   free(p);
