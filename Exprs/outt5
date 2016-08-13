@@ -819,9 +819,11 @@ extern int ftrylockfile (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__)
 extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__));
 
 int main(){
-  int *m = (int *)malloc(sizeof(int));
+  int *n = (int *)malloc(sizeof(int));
   int **p = (int **)malloc(sizeof(int)) ;
-  if(m){
+  int lconst_n = 1;
+  if(lconst_n){
+  if(n){
     int *x = (int*)malloc(sizeof(int));
     *x = 10;
     *p = x;
@@ -830,7 +832,7 @@ int main(){
   else {
     printf("m is a null pointer \n");
   }
-  if(m){
+  if(n){
     free(*p);
     *p = ((void *)0);
     printf("x has been deallocated \n");
@@ -838,7 +840,8 @@ int main(){
   else {
     printf("m is a null pointer \n");
   }
-  free(m);
+  }
+  free(n);
   free(p);
   return 0;
 }

@@ -30,9 +30,9 @@ and  fixGlobal (glb: global ) : unit =
      let fname = fd.svar.vname in
      recFName := fname;
      recString := "";
-     (* fixFunc fd; *)
+     print_int (Cfg.cfgFun fd);
+     print_newline ();
      Ret.oneret fd;
-     prepareCFG fd;
      funlist := (("%"^fname^"%", {fName = "%"^fname^"%"; bType = !recString; funbody = fd }) :: !funlist );
      prints "fixGlobal : GFun End \n"
   | GAsm (str, loc) -> prints "fixGlobal : GAsm \n"
@@ -46,7 +46,7 @@ let main () = Main.main ();
      (dumpFile (!printerForMaincil) channel "rewritten_file1.c") !Main.astfile;
      close_out channel );
 
-  Cfg.computeFileCFG(!Main.astfile);
+  (* Cfg.computeFileCFG(!Main.astfile); *)
 
   abstract(!Main.astfile);
 

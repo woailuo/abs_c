@@ -5,6 +5,9 @@ int main(){
   int *n = (int *)malloc(sizeof(int));
   int **p = (int **)malloc(sizeof(int)) ;
 
+  int lconst_n = 1;
+  if(lconst_n){
+    
   if(n){
     int *x = (int*)malloc(sizeof(int));
     *x = 10;
@@ -22,6 +25,8 @@ int main(){
   }
   else {
     printf("m is a null pointer \n");
+  }
+
   }
 
   free(n);
