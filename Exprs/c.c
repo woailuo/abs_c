@@ -5,7 +5,7 @@ int main(int argc, char *argv[]){
 
   int *p = (int*)malloc(sizeof(int));
   int *q = (int*)malloc(sizeof(int));
-
+  return 0;
   int n, m ;
   scanf("%d, %d", &n, &m);
 

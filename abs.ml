@@ -32,7 +32,7 @@ and  fixGlobal (glb: global ) : unit =
      recString := "";
      (* fixFunc fd; *)
      Ret.oneret fd;
-     (* prepareCFG fd; *)
+     prepareCFG fd;
      funlist := (("%"^fname^"%", {fName = "%"^fname^"%"; bType = !recString; funbody = fd }) :: !funlist );
      prints "fixGlobal : GFun End \n"
   | GAsm (str, loc) -> prints "fixGlobal : GAsm \n"

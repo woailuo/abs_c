@@ -23,14 +23,14 @@ and  comFunBody fbody =  comBlock fbody.sbody
 and comBlock fblock = List.iter comStmt fblock.bstmts
 
 and comStmt (stm: stmt)  =
-  isLastStmt stm;
+  (* isLastStmt stm; *)
   match stm.skind with
   | Instr ilist -> prints "comStmt Instr Start \n" ;
 		   comInstrs  ilist;
 		   prints "comStmt Instr End\n"
   | Return (Some exp, loc) -> prints "comStmt Return Start\n";
 			      comExpr exp;
-			      (* isLastStmt stm; *)
+			      isLastStmt stm;
 			      (* ( if(isLastStmt stm) then *)
 			      (* concatChars (comLastCharacter !bhtString) "" *)
 			      concatChars (comLastCharacter !bhtString) "%return%" ;
