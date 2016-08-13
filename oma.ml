@@ -9,7 +9,7 @@ let bhtString = ref ""
 let funcName = ref ""
 let flag = ref true 
 let flag2 = ref true
-		
+
 let rec  comBeh funlist = List.iter comFun !funlist
 
 and  comFun frecord =
